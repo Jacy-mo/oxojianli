@@ -157,8 +157,8 @@ function SidebarTemplate({
   const mainSections = sections.filter((section) => !sidebarTypes.has(section.type))
 
   return (
-    <div className="grid min-h-[1123px] grid-cols-[235px_1fr]">
-      <aside className="bg-[#f1f4f2] px-6 py-7">
+    <div className="print-sidebar-layout grid min-h-[1123px] grid-cols-[235px_1fr]">
+      <aside className="print-sidebar-aside bg-[#f1f4f2] px-6 py-7">
         <AvatarBlock basic={resume.basic} template={template} large />
         <div className="mt-5 space-y-2 text-[13px] font-semibold text-[#1f2937]">
           <InfoLine icon={<Mail className="h-4 w-4" />} value={resume.basic.email} />
@@ -172,7 +172,7 @@ function SidebarTemplate({
           ))}
         </div>
       </aside>
-      <main className="px-8 py-8">
+      <main className="print-sidebar-main px-8 py-8">
         <div className="mb-5">
           <h1 className="text-[31px] font-black leading-none tracking-normal text-[#111827]">
             {resume.basic.name || "未命名"}

@@ -100,14 +100,37 @@ button:disabled {
   }
 
   .print-surface {
-    position: absolute !important;
-    left: 0 !important;
-    top: 0 !important;
+    position: static !important;
     box-shadow: none !important;
     margin: 0 !important;
     width: 210mm !important;
     max-width: 210mm !important;
     min-height: 297mm !important;
     overflow: visible !important;
+  }
+
+  .print-sidebar-layout {
+    display: grid !important;
+    grid-template-columns: 48mm 162mm !important;
+    align-items: start !important;
+    min-height: 297mm !important;
+    page-break-inside: auto !important;
+    break-inside: auto !important;
+  }
+
+  .print-sidebar-aside,
+  .print-sidebar-main {
+    page-break-inside: auto !important;
+    break-inside: auto !important;
+  }
+
+  .print-sidebar-main {
+    overflow: visible !important;
+  }
+
+  .print-sidebar-main article,
+  .print-sidebar-main section {
+    page-break-inside: auto !important;
+    break-inside: auto !important;
   }
 }
