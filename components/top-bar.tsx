@@ -1,6 +1,6 @@
 "use client"
 
-import { Download, RotateCcw, Sparkles } from "lucide-react"
+import { Download, FileJson, RotateCcw, Sparkles } from "lucide-react"
 import { BrandLogo } from "@/components/brand-logo"
 import { UploadButton } from "@/components/upload-button"
 import { useResumeStore } from "@/store/resume-store"
@@ -11,6 +11,7 @@ export function TopBar() {
   const parseMessage = useResumeStore((state) => state.parseMessage)
   const updateTitle = useResumeStore((state) => state.updateTitle)
   const resetResume = useResumeStore((state) => state.resetResume)
+  const resume = useResumeStore((state) => state.resume)
 
   return (
     <header className="no-print sticky top-0 z-40 flex h-[100px] items-center justify-between border-b border-line bg-[#fbfaf7]/95 px-8 backdrop-blur">
@@ -30,6 +31,24 @@ export function TopBar() {
           aria-label="简历标题"
         />
         <UploadButton />
+        <button
+          type="button"
+          className="inline-flex h-11 w-11 items-center justify-center rounded-[8px] border border-line bg-white text-ink transition hover:border-ink"
+          title="备份草稿 JSON"
+          onClick={() => {
+            const blob = new Blob([JSON.stringify(resume, null, 2)], {
+              type: "application/json;charset=utf-8"
+            })
+            const url = URL.createObjectURL(blob)
+            const anchor = document.createElement("a")
+            anchor.href = url
+            anchor.download = `${resume.title || "oxo-resume-draft"}.json`
+            anchor.click()
+            URL.revokeObjectURL(url)
+          }}
+        >
+          <FileJson className="h-4 w-4" />
+        </button>
         <button
           type="button"
           className="inline-flex h-11 w-11 items-center justify-center rounded-[8px] border border-line bg-white text-ink transition hover:border-ink"

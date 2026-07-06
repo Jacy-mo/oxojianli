@@ -420,6 +420,7 @@ function BulletBlock({ bullets, compact }: { bullets: string[]; compact: boolean
 function MarkdownBlock({ content, compact = false }: { content: string; compact?: boolean }) {
   return (
     <div
+      key={content}
       className={`font-medium text-[#333] [&_li]:pl-1 [&_ol]:ml-5 [&_ol]:list-decimal [&_p]:my-1 [&_strong]:font-black [&_strong]:text-[#222] [&_ul]:ml-5 [&_ul]:list-disc ${
         compact ? "[&_li]:my-0" : "[&_li]:my-0.5"
       }`}
@@ -430,9 +431,21 @@ function MarkdownBlock({ content, compact = false }: { content: string; compact?
 }
 
 function InlineMarkdown({ content }: { content: string }) {
+  const parts = content.split(/(\*\*[^*]+\*\*)/g).filter(Boolean)
+
   return (
-    <span className="[&_strong]:font-black [&_strong]:text-[#222]">
-      <ReactMarkdown components={{ p: ({ children }) => <>{children}</> }}>{content}</ReactMarkdown>
+    <span>
+      {parts.map((part, index) => {
+        if (part.startsWith("**") && part.endsWith("**")) {
+          return (
+            <strong key={`${part}-${index}`} className="font-black text-[#222]">
+              {part.slice(2, -2)}
+            </strong>
+          )
+        }
+
+        return <span key={`${part}-${index}`}>{part}</span>
+      })}
     </span>
   )
 }
