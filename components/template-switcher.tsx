@@ -63,7 +63,7 @@ export function TemplateSwitcher({ onClose }: { onClose: () => void }) {
 
   return (
     <div
-      className="no-print fixed bottom-5 right-5 top-[165px] z-40 w-[calc(48vw-28px)] min-w-[560px] max-w-[920px] bg-[#ecebea]/80 p-4 backdrop-blur-sm"
+      className="no-print absolute inset-4 z-40 bg-[#ecebea]/80 p-4 backdrop-blur-sm"
       role="dialog"
       aria-modal="true"
     >

@@ -1,4 +1,5 @@
 import { normalizeResume } from "@/lib/resume-factory"
+import { repairResumeStructure } from "@/lib/resume-repair"
 import type { Resume, ResumeSectionType } from "@/types/resume"
 
 const emailPattern = /[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/i
@@ -24,7 +25,7 @@ export function fallbackParseResume(rawText: string, fileName?: string): Resume 
   const phone = rawText.match(phonePattern)?.[0] || ""
   const sections = splitSections(lines)
 
-  return normalizeResume({
+  return repairResumeStructure(normalizeResume({
     title: fileName?.replace(/\.(pdf|docx|doc|txt)$/i, "") || `${firstUsefulLine}的简历`,
     basic: {
       name: firstUsefulLine,
@@ -35,7 +36,7 @@ export function fallbackParseResume(rawText: string, fileName?: string): Resume 
     },
     sections,
     sourceText: rawText
-  })
+  }))
 }
 
 function splitSections(lines: string[]) {
@@ -97,8 +98,11 @@ function buildItems(type: ResumeSectionType, lines: string[]) {
 
   lines.forEach((line) => {
     const looksLikeTitle =
-      /(\d{4}[./-]\d{1,2}|至今|present)/i.test(line) ||
-      (line.length < 34 && !line.startsWith("-") && !line.startsWith("•"))
+      /^(项目名称|项目名|公司|学校)[：:]/.test(line) ||
+      (/(\d{4}[./-]\d{1,2}|\d{4}|至今|present)/i.test(line) &&
+        line.length < 90 &&
+        !/^(业务痛点|工程优化|交付成果|技术栈|角色)[：:]/.test(line)) ||
+      (current.length === 0 && line.length < 50 && !line.startsWith("-") && !line.startsWith("•"))
 
     if (looksLikeTitle && current.length > 1) {
       chunks.push(current)

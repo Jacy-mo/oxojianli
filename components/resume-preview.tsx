@@ -36,9 +36,11 @@ export function ResumePreview() {
   )
 
   return (
-    <section className="relative overflow-auto bg-[#ecebea] px-4 py-5 print:overflow-visible print:bg-white print:p-0">
+    <section className="relative overflow-hidden bg-[#ecebea] print:overflow-visible print:bg-white print:p-0">
       <FloatingToolbar template={template} />
-      <ResumePaper resume={resume} sections={visibleSections} template={template} />
+      <div className="h-full overflow-auto px-4 pb-5 pt-[76px] print:overflow-visible print:p-0">
+        <ResumePaper resume={resume} sections={visibleSections} template={template} />
+      </div>
     </section>
   )
 }
@@ -412,8 +414,8 @@ function FloatingToolbar({ template }: { template: ResumeTemplate }) {
 
   return (
     <>
-      <div className="no-print fixed right-10 top-[230px] z-30 flex flex-col items-end gap-3">
-        <div className="flex flex-col gap-2 rounded-[16px] bg-white p-2 shadow-soft">
+      <div className="no-print absolute left-4 right-4 top-4 z-30 flex justify-end">
+        <div className="flex items-center gap-2 rounded-[12px] bg-white p-2 shadow-soft">
           <ToolButton title="切换模板" onClick={() => setTemplateOpen(true)}>
             <LayoutTemplate className="h-5 w-5" />
           </ToolButton>

@@ -1,5 +1,6 @@
 import OpenAI from "openai"
 import { normalizeResume } from "@/lib/resume-factory"
+import { repairResumeStructure } from "@/lib/resume-repair"
 import type { Resume } from "@/types/resume"
 
 const systemPrompt = `你是一个严谨的中文简历结构化解析器。
@@ -7,9 +8,12 @@ const systemPrompt = `你是一个严谨的中文简历结构化解析器。
 要求：
 1. 尽量保留原简历信息，不要编造。
 2. sections 只使用这些 type：education, work, project, skills, summary, advantages, custom。
-3. 经历类内容拆成多条 items，文字说明放在 bullets 或 content。
-4. 不确定的内容放入 custom 模块。
-5. 日期保持原文本格式。`
+3. 严格保持原简历从上到下的顺序，section 顺序和 item 顺序都不能打乱。
+4. 经历类必须按“每一段教育/每一家公司/每一个项目”拆成独立 items，不要把多个项目合并到一个 item。
+5. 项目经历中，项目名称放 title，角色放 role，时间放 startDate/endDate，技术栈放 tags，不要把这些字段重复塞进 bullets。
+6. bullets 只放职责、动作、成果、业务痛点、工程优化、交付成果等正文要点，保持原文顺序。
+7. 不确定的内容放入 custom 模块。
+8. 日期保持原文本格式。`
 
 export async function parseResumeWithAi(rawText: string, fileName?: string): Promise<Resume> {
   const apiKey = process.env.OPENAI_API_KEY
@@ -40,8 +44,8 @@ export async function parseResumeWithAi(rawText: string, fileName?: string): Pro
     throw new Error("AI parser returned empty content")
   }
 
-  return normalizeResume({
+  return repairResumeStructure(normalizeResume({
     ...JSON.parse(content),
     sourceText: rawText
-  })
+  }))
 }
