@@ -392,21 +392,38 @@ function PreviewItem({
       ) : null}
       {item.content ? <MarkdownBlock content={item.content} /> : null}
       {item.bullets && item.bullets.length > 0 ? (
-        <ul className={`ml-5 list-disc ${compact || ats ? "space-y-0" : "space-y-0.5"}`}>
-          {item.bullets.map((bullet) => (
-            <li key={bullet} className="pl-1 font-medium text-[#333]">
-              <InlineMarkdown content={bullet} />
-            </li>
-          ))}
-        </ul>
+        <BulletBlock bullets={item.bullets} compact={compact || ats} />
       ) : null}
     </article>
   )
 }
 
-function MarkdownBlock({ content }: { content: string }) {
+function BulletBlock({ bullets, compact }: { bullets: string[]; compact: boolean }) {
+  const content = bullets.join("\n")
+  const hasMarkdownStructure = bullets.length === 1 && /(^|\n)\s*(-|\*|\d+\.)\s+/.test(content)
+
+  if (hasMarkdownStructure) {
+    return <MarkdownBlock content={content} compact={compact} />
+  }
+
   return (
-    <div className="space-y-1 font-medium text-[#333] [&_p]:my-1 [&_strong]:font-black [&_strong]:text-[#222]">
+    <ul className={`ml-5 list-disc ${compact ? "space-y-0" : "space-y-0.5"}`}>
+      {bullets.map((bullet) => (
+        <li key={bullet} className="pl-1 font-medium text-[#333]">
+          <InlineMarkdown content={bullet} />
+        </li>
+      ))}
+    </ul>
+  )
+}
+
+function MarkdownBlock({ content, compact = false }: { content: string; compact?: boolean }) {
+  return (
+    <div
+      className={`font-medium text-[#333] [&_li]:pl-1 [&_ol]:ml-5 [&_ol]:list-decimal [&_p]:my-1 [&_strong]:font-black [&_strong]:text-[#222] [&_ul]:ml-5 [&_ul]:list-disc ${
+        compact ? "[&_li]:my-0" : "[&_li]:my-0.5"
+      }`}
+    >
       <ReactMarkdown>{content}</ReactMarkdown>
     </div>
   )

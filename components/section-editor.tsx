@@ -324,16 +324,14 @@ function SortableItemEditor({
             className="col-span-2"
           />
           <TextArea
-            label="要点"
+            label="要点 Markdown"
             value={(item.bullets || []).join("\n")}
             onChange={(value) =>
               updateItem(section.id, item.id, {
-                bullets: value
-                  .split(/\r?\n/)
-                  .map((line) => line.trim())
-                  .filter(Boolean)
+                bullets: value ? [value] : []
               })
             }
+            rows={9}
             className="col-span-2"
           />
         </div>
@@ -387,11 +385,13 @@ function TextArea({
   label,
   value,
   onChange,
+  rows = 5,
   className = ""
 }: {
   label: string
   value: string
   onChange: (value: string) => void
+  rows?: number
   className?: string
 }) {
   return (
@@ -399,9 +399,9 @@ function TextArea({
       <span className="mb-2 block text-xs font-bold text-neutral-500">{label}</span>
       <textarea
         value={value}
-        rows={5}
+        rows={rows}
         onChange={(event) => onChange(event.target.value)}
-        className="w-full resize-y rounded-[8px] border border-line bg-white px-3 py-2 text-sm font-medium leading-6 outline-none transition focus:border-ink"
+        className="w-full resize-y rounded-[8px] border border-line bg-white px-3 py-2 font-mono text-sm font-medium leading-6 outline-none transition focus:border-ink"
       />
     </label>
   )

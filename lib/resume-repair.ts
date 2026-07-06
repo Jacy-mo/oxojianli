@@ -145,7 +145,7 @@ function collectLines(item: ResumeItem) {
     ...(item.bullets || [])
   ]
     .flatMap((line) => line.split(/\r?\n/))
-    .map(cleanLine)
+    .map(cleanInline)
     .filter(Boolean)
 }
 
@@ -235,7 +235,7 @@ function buildBullets(lines: string[], fields: Map<string, string[]>) {
     .filter((line) => !/^(项目名称|项目名|项目|角色|职位|公司|学校|专业|学历|技术栈|技术|地点)[：:]/.test(line))
     .filter(Boolean)
 
-  return unique(bullets)
+  return preserveMarkdownBullets(uniquePreserveMarkdown(bullets))
 }
 
 function readFirst(fields: Map<string, string[]>, labels: Set<string>) {
@@ -281,8 +281,14 @@ function cleanContent(content: string) {
 
 function repairRichText(content: string) {
   return content
-    .split(/\r?\n/)
-    .flatMap(splitDenseRichTextLine)
+    .split(/\n{2,}/)
+    .flatMap((block) => {
+      if (isMarkdownListBlock(block)) {
+        return [block.split(/\r?\n/).map(cleanInline).join("\n")]
+      }
+
+      return block.split(/\r?\n/).flatMap(splitDenseRichTextLine)
+    })
     .map(formatRichTextLine)
     .filter(Boolean)
     .join("\n\n")
@@ -308,10 +314,14 @@ function splitDenseRichTextLine(line: string) {
   })
 }
 
-function formatRichTextLine(line: string) {
-  const text = cleanLine(line)
+function formatRichTextLine(line: string): string {
+  const text = cleanInline(line)
   if (!text) {
     return ""
+  }
+
+  if (/^(\s*(-|\*)|\s*\d+\.)\s+/.test(text)) {
+    return formatMarkdownListLine(text)
   }
 
   if (/^\*\*.+?\*\*/.test(text)) {
@@ -332,7 +342,11 @@ function formatRichTextLine(line: string) {
 }
 
 function cleanLine(line: string) {
-  return line.replace(/^[\s\-•·●]+/, "").replace(/\s+/g, " ").trim()
+  return cleanInline(line).replace(/^[\-•·●]\s*/, "").trim()
+}
+
+function cleanInline(line: string) {
+  return line.replace(/[ \t]+/g, " ").trim()
 }
 
 function splitTags(value: string) {
@@ -344,6 +358,45 @@ function splitTags(value: string) {
 
 function unique(values: string[]) {
   return [...new Set(values.map(cleanLine).filter(Boolean))]
+}
+
+function preserveMarkdownBullets(values: string[]) {
+  if (values.length === 0) {
+    return []
+  }
+
+  return [values.map(formatRichTextLine).join("\n\n")]
+}
+
+function isMarkdownListBlock(block: string) {
+  return block
+    .split(/\r?\n/)
+    .filter(Boolean)
+    .every((line) => /^\s*(?:[-*]|\d+\.)\s+/.test(line))
+}
+
+function formatMarkdownListLine(line: string): string {
+  return line.replace(/^(\s*(?:[-*]|\d+\.)\s+)(.+)$/, (_match, marker: string, body: string) => {
+    const formatted: string = formatRichTextLine(body)
+    return `${marker}${formatted}`
+  })
+}
+
+function uniquePreserveMarkdown(values: string[]) {
+  const seen = new Set<string>()
+  const result: string[] = []
+
+  values.forEach((value) => {
+    const cleaned = cleanInline(value)
+    if (!cleaned || seen.has(cleaned)) {
+      return
+    }
+
+    seen.add(cleaned)
+    result.push(cleaned)
+  })
+
+  return result
 }
 
 function escapeRegExp(value: string) {
