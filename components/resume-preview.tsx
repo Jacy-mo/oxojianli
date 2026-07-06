@@ -36,9 +36,9 @@ export function ResumePreview() {
   )
 
   return (
-    <section className="relative overflow-hidden bg-[#ecebea] print:overflow-visible print:bg-white print:p-0">
+    <section className="print-preview print-only relative overflow-hidden bg-[#ecebea] print:overflow-visible print:bg-white print:p-0">
       <FloatingToolbar template={template} />
-      <div className="h-full overflow-auto px-4 pb-5 pt-[76px] print:overflow-visible print:p-0">
+      <div className="print-scroll h-full overflow-auto px-4 pb-5 pt-[76px] print:overflow-visible print:p-0">
         <ResumePaper resume={resume} sections={visibleSections} template={template} />
       </div>
     </section>

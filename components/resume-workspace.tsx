@@ -41,7 +41,7 @@ export function ResumeWorkspace() {
           ) : null}
         </div>
       </div>
-      <div className="grid h-[calc(100vh-141px)] grid-cols-[380px_minmax(430px,1fr)_minmax(620px,48vw)] overflow-hidden">
+      <div className="print-root grid h-[calc(100vh-141px)] grid-cols-[380px_minmax(430px,1fr)_minmax(620px,48vw)] overflow-hidden">
         <ModuleSidebar />
         <SectionEditor />
         <ResumePreview />
