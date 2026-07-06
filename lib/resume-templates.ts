@@ -62,7 +62,7 @@ export const builtInTemplates: ResumeTemplate[] = [
     layout: "sidebar",
     theme: {
       accentColor: "#14532d",
-      fontFamily: "Georgia, 'Times New Roman', serif",
+      fontFamily: "'Times New Roman', SimSun, serif",
       fontSize: 13,
       lineHeight: 1.48,
       pageMargin: 0

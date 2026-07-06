@@ -56,7 +56,9 @@ function ResumePaper({
 }) {
   const baseStyle = {
     ["--accent-color" as string]: resume.theme.accentColor,
-    fontFamily: resume.theme.fontFamily,
+    fontFamily: normalizePreviewFont(resume.theme.fontFamily),
+    fontVariantNumeric: "lining-nums tabular-nums",
+    fontFeatureSettings: "\"lnum\" 1, \"tnum\" 1",
     fontSize: `${resume.theme.fontSize}px`,
     lineHeight: resume.theme.lineHeight,
     padding: template.layout === "sidebar" ? 0 : `${resume.theme.pageMargin}px`
@@ -85,6 +87,14 @@ function ResumePaper({
       <StandardTemplate resume={resume} sections={sections} template={template} />
     </div>
   )
+}
+
+function normalizePreviewFont(fontFamily: string) {
+  if (fontFamily.toLowerCase().includes("georgia")) {
+    return "'Times New Roman', SimSun, serif"
+  }
+
+  return fontFamily
 }
 
 function StandardTemplate({
