@@ -65,8 +65,8 @@ async function extractText(file: File) {
     name.endsWith(".docx") ||
     file.type === "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
   ) {
-    const result = await mammoth.extractRawText({ buffer })
-    return normalizeWhitespace(result.value)
+    const result = await mammoth.convertToHtml({ buffer })
+    return normalizeWhitespace(htmlToMarkdown(result.value))
   }
 
   if (name.endsWith(".txt") || file.type.startsWith("text/")) {
@@ -82,4 +82,27 @@ function normalizeWhitespace(text: string) {
     .replace(/[ \t]+\n/g, "\n")
     .replace(/\n{3,}/g, "\n\n")
     .trim()
+}
+
+function htmlToMarkdown(html: string) {
+  return html
+    .replace(/<\s*strong\s*>/gi, "**")
+    .replace(/<\s*\/\s*strong\s*>/gi, "**")
+    .replace(/<\s*b\s*>/gi, "**")
+    .replace(/<\s*\/\s*b\s*>/gi, "**")
+    .replace(/<\s*em\s*>/gi, "*")
+    .replace(/<\s*\/\s*em\s*>/gi, "*")
+    .replace(/<\s*i\s*>/gi, "*")
+    .replace(/<\s*\/\s*i\s*>/gi, "*")
+    .replace(/<\s*li\s*>/gi, "\n- ")
+    .replace(/<\s*\/\s*li\s*>/gi, "")
+    .replace(/<\s*\/\s*p\s*>/gi, "\n\n")
+    .replace(/<\s*p[^>]*>/gi, "")
+    .replace(/<\s*br\s*\/?>/gi, "\n")
+    .replace(/<[^>]+>/g, "")
+    .replace(/&nbsp;/g, " ")
+    .replace(/&amp;/g, "&")
+    .replace(/&lt;/g, "<")
+    .replace(/&gt;/g, ">")
+    .replace(/&quot;/g, "\"")
 }

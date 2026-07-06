@@ -28,6 +28,21 @@ const roleLabels = new Set(["角色", "职位"])
 const subtitleLabels = new Set(["专业", "学历"])
 const tagLabels = new Set(["技术栈", "技术"])
 const keepAsBulletLabels = new Set(["业务痛点", "工程优化", "交付成果", "项目描述", "工作内容"])
+const richTextLabels = [
+  "985 逻辑底蕴",
+  "全链路 AI 实战",
+  "业务+技术双向视角",
+  "业务痛点",
+  "工程优化",
+  "交付成果",
+  "项目描述",
+  "工作内容",
+  "亮点",
+  "难点",
+  "结果",
+  "成果",
+  "职责"
+]
 
 export function repairResumeStructure(resume: Resume): Resume {
   return {
@@ -37,6 +52,17 @@ export function repairResumeStructure(resume: Resume): Resume {
 }
 
 function repairSection(section: ResumeSection): ResumeSection {
+  if (["skills", "summary", "advantages", "custom"].includes(section.type)) {
+    return {
+      ...section,
+      items: section.items.map((item) => ({
+        ...item,
+        content: repairRichText(item.content || ""),
+        bullets: (item.bullets || []).map(formatRichTextLine)
+      }))
+    }
+  }
+
   if (!["education", "work", "project"].includes(section.type)) {
     return section
   }
@@ -68,8 +94,8 @@ function repairExperienceItem(type: ResumeSectionType, item: ResumeItem): Resume
       startDate: current.startDate || dateRange.startDate,
       endDate: current.endDate || dateRange.endDate,
       tags: unique(tags),
-      content: cleanContent(current.content || ""),
-      bullets
+      content: repairRichText(cleanContent(current.content || "")),
+      bullets: bullets.map(formatRichTextLine)
     }
   })
 }
@@ -138,13 +164,14 @@ function collectFields(lines: string[]) {
 
 function parseLabeledSegments(line: string) {
   const fields = new Map<string, string>()
-  const matches = [...line.matchAll(new RegExp(`(${fieldLabels.join("|")})[：:]`, "g"))]
+  const normalized = line.replace(/\*\*([^*：:]{1,24}[：:])\*\*/g, "$1")
+  const matches = [...normalized.matchAll(new RegExp(`(${fieldLabels.join("|")})[：:]`, "g"))]
 
   matches.forEach((match, index) => {
     const label = match[1]
     const start = (match.index || 0) + match[0].length
-    const end = matches[index + 1]?.index ?? line.length
-    const value = line.slice(start, end).trim()
+    const end = matches[index + 1]?.index ?? normalized.length
+    const value = normalized.slice(start, end).replace(/^\*\*\s*/, "").trim()
 
     if (value) {
       fields.set(label, value)
@@ -196,7 +223,7 @@ function buildBullets(lines: string[], fields: Map<string, string[]>) {
       const labeled = parseLabeledSegments(line)
       const kept = [...labeled.entries()]
         .filter(([label]) => keepAsBulletLabels.has(label))
-        .map(([label, value]) => `${label}：${value}`)
+        .map(([label, value]) => `**${label}：** ${value}`)
 
       if (kept.length > 0) {
         return kept.join("；")
@@ -252,8 +279,60 @@ function cleanContent(content: string) {
     .join("\n")
 }
 
+function repairRichText(content: string) {
+  return content
+    .split(/\r?\n/)
+    .flatMap(splitDenseRichTextLine)
+    .map(formatRichTextLine)
+    .filter(Boolean)
+    .join("\n\n")
+}
+
+function splitDenseRichTextLine(line: string) {
+  const text = cleanLine(line)
+  if (!text) {
+    return []
+  }
+
+  const labelPattern = new RegExp(`(${richTextLabels.map(escapeRegExp).join("|")})[：:]`, "g")
+  const matches = [...text.matchAll(labelPattern)]
+
+  if (matches.length <= 1) {
+    return [text]
+  }
+
+  return matches.map((match, index) => {
+    const start = match.index || 0
+    const end = matches[index + 1]?.index ?? text.length
+    return text.slice(start, end).trim()
+  })
+}
+
+function formatRichTextLine(line: string) {
+  const text = cleanLine(line)
+  if (!text) {
+    return ""
+  }
+
+  if (/^\*\*.+?\*\*/.test(text)) {
+    return text
+  }
+
+  const knownLabel = richTextLabels.find((label) => text.startsWith(`${label}：`) || text.startsWith(`${label}:`))
+  if (knownLabel) {
+    return text.replace(new RegExp(`^${escapeRegExp(knownLabel)}[：:]\\s*`), `**${knownLabel}：** `)
+  }
+
+  const generic = text.match(/^([\u4e00-\u9fa5A-Za-z0-9+ /]{2,18})[：:]\s*(.+)$/)
+  if (generic) {
+    return `**${generic[1].trim()}：** ${generic[2].trim()}`
+  }
+
+  return text
+}
+
 function cleanLine(line: string) {
-  return line.replace(/^[\s\-•·●*]+/, "").replace(/\s+/g, " ").trim()
+  return line.replace(/^[\s\-•·●]+/, "").replace(/\s+/g, " ").trim()
 }
 
 function splitTags(value: string) {
@@ -265,4 +344,8 @@ function splitTags(value: string) {
 
 function unique(values: string[]) {
   return [...new Set(values.map(cleanLine).filter(Boolean))]
+}
+
+function escapeRegExp(value: string) {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")
 }

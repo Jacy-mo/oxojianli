@@ -385,7 +385,7 @@ function PreviewItem({
         <ul className={`ml-5 list-disc ${compact || ats ? "space-y-0" : "space-y-0.5"}`}>
           {item.bullets.map((bullet) => (
             <li key={bullet} className="pl-1 font-medium text-[#333]">
-              {bullet}
+              <InlineMarkdown content={bullet} />
             </li>
           ))}
         </ul>
@@ -399,6 +399,14 @@ function MarkdownBlock({ content }: { content: string }) {
     <div className="space-y-1 font-medium text-[#333] [&_p]:my-1 [&_strong]:font-black [&_strong]:text-[#222]">
       <ReactMarkdown>{content}</ReactMarkdown>
     </div>
+  )
+}
+
+function InlineMarkdown({ content }: { content: string }) {
+  return (
+    <span className="[&_strong]:font-black [&_strong]:text-[#222]">
+      <ReactMarkdown components={{ p: ({ children }) => <>{children}</> }}>{content}</ReactMarkdown>
+    </span>
   )
 }
 
