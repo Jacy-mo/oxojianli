@@ -23,12 +23,14 @@ import {
   ChevronUp,
   GripVertical,
   ImagePlus,
+  Loader2,
   MapPin,
   Plus,
   Trash2
 } from "lucide-react"
 import { ChangeEvent, useMemo, useState } from "react"
 import type { ResumeItem, ResumeSection } from "@/types/resume"
+import { createAvatarDataUrl } from "@/lib/avatar"
 import { useActiveSection, useResumeStore } from "@/store/resume-store"
 
 export function SectionEditor() {
@@ -42,20 +44,27 @@ export function SectionEditor() {
 }
 
 function BasicInfoEditor() {
+  const [avatarStatus, setAvatarStatus] = useState("")
   const basic = useResumeStore((state) => state.resume.basic)
   const updateBasic = useResumeStore((state) => state.updateBasic)
 
-  function handleAvatarChange(event: ChangeEvent<HTMLInputElement>) {
+  async function handleAvatarChange(event: ChangeEvent<HTMLInputElement>) {
     const file = event.target.files?.[0]
     if (!file) {
       return
     }
 
-    const reader = new FileReader()
-    reader.onload = () => {
-      updateBasic({ avatar: String(reader.result) })
+    setAvatarStatus("uploading")
+    try {
+      const avatar = await createAvatarDataUrl(file)
+      updateBasic({ avatar })
+      setAvatarStatus("done")
+      window.setTimeout(() => setAvatarStatus(""), 1200)
+    } catch (error) {
+      setAvatarStatus(error instanceof Error ? error.message : "头像上传失败")
+    } finally {
+      event.target.value = ""
     }
-    reader.readAsDataURL(file)
   }
 
   return (
@@ -72,10 +81,20 @@ function BasicInfoEditor() {
             )}
           </div>
           <label className="inline-flex h-10 items-center gap-2 rounded-[8px] border border-line bg-white px-3 text-sm font-semibold transition hover:border-ink">
-            <ImagePlus className="h-4 w-4" />
-            上传头像
+            {avatarStatus === "uploading" ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              <ImagePlus className="h-4 w-4" />
+            )}
+            {avatarStatus === "uploading" ? "处理中" : "上传头像"}
             <input type="file" accept="image/*" className="hidden" onChange={handleAvatarChange} />
           </label>
+          {avatarStatus && avatarStatus !== "uploading" && avatarStatus !== "done" ? (
+            <div className="text-sm font-semibold text-red-500">{avatarStatus}</div>
+          ) : null}
+          {avatarStatus === "done" ? (
+            <div className="text-sm font-semibold text-accent">头像已更新</div>
+          ) : null}
         </div>
 
         <div className="grid grid-cols-2 gap-4">

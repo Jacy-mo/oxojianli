@@ -31,7 +31,7 @@ export const builtInTemplates: ResumeTemplate[] = [
       lineHeight: 1.42,
       pageMargin: 24
     },
-    showAvatar: false,
+    showAvatar: true,
     showTags: false,
     sidebarSections: [],
     heading: "plain",
@@ -103,7 +103,7 @@ export const builtInTemplates: ResumeTemplate[] = [
       lineHeight: 1.38,
       pageMargin: 22
     },
-    showAvatar: false,
+    showAvatar: true,
     showTags: true,
     sidebarSections: [],
     heading: "line",
@@ -144,7 +144,7 @@ export function normalizeImportedTemplate(input: unknown): ResumeTemplate {
       lineHeight: Number(template.theme.lineHeight || 1.5),
       pageMargin: Number(template.theme.pageMargin || 28)
     },
-    showAvatar: Boolean(template.showAvatar),
+    showAvatar: template.showAvatar !== false,
     showTags: template.showTags !== false,
     sidebarSections: template.sidebarSections || [],
     heading: template.heading || "line",

@@ -412,7 +412,7 @@ function FloatingToolbar({ template }: { template: ResumeTemplate }) {
 
   return (
     <>
-      <div className="no-print absolute right-5 top-5 z-30 flex flex-col items-end gap-3">
+      <div className="no-print fixed right-10 top-[230px] z-30 flex flex-col items-end gap-3">
         <div className="flex flex-col gap-2 rounded-[16px] bg-white p-2 shadow-soft">
           <ToolButton title="切换模板" onClick={() => setTemplateOpen(true)}>
             <LayoutTemplate className="h-5 w-5" />

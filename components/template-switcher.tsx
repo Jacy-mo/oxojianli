@@ -63,11 +63,11 @@ export function TemplateSwitcher({ onClose }: { onClose: () => void }) {
 
   return (
     <div
-      className="no-print absolute inset-0 z-40 bg-[#ecebea]/80 p-5 backdrop-blur-sm"
+      className="no-print fixed bottom-5 right-5 top-[165px] z-40 w-[calc(48vw-28px)] min-w-[560px] max-w-[920px] bg-[#ecebea]/80 p-4 backdrop-blur-sm"
       role="dialog"
       aria-modal="true"
     >
-      <div className="ml-auto flex h-full max-w-[920px] flex-col overflow-hidden rounded-[12px] bg-[#fbfaf7] shadow-soft">
+      <div className="flex h-full flex-col overflow-hidden rounded-[12px] bg-[#fbfaf7] shadow-soft">
         <header className="flex h-20 shrink-0 items-center justify-between border-b border-line px-7">
           <div>
             <h2 className="text-2xl font-black text-ink">切换模板</h2>
